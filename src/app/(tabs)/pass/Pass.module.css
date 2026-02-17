@@ -1,0 +1,224 @@
+.container {
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    min-height: calc(100dvh - var(--tab-bar-height));
+    padding: var(--spacing-md);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.08), transparent 35%),
+        radial-gradient(circle at 100% 20%, rgba(234, 179, 8, 0.12), transparent 25%);
+}
+
+.header {
+    margin-bottom: var(--spacing-md);
+}
+
+.title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin: 0;
+}
+
+.subtitle {
+    margin-top: 6px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.cardWrap {
+    perspective: 1000px;
+}
+
+.flipButton {
+    margin: 0 0 var(--spacing-sm);
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    padding: 8px;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.cardScene {
+    width: 100%;
+    aspect-ratio: 1.58;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform var(--transition-slow);
+}
+
+.isFlipped {
+    transform: rotateY(180deg);
+}
+
+.cardFace {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-xl);
+    backface-visibility: hidden;
+    overflow: hidden;
+    box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.cardFront {
+    color: #fff;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background:
+        linear-gradient(150deg, rgba(255, 255, 255, 0.25), transparent 40%),
+        linear-gradient(120deg, #1d4ed8 0%, #2563eb 38%, #7c3aed 100%);
+}
+
+.cardFront::after {
+    content: '';
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    right: -90px;
+    top: -70px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.cardBrand {
+    letter-spacing: 0.08em;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+}
+
+.cardTier {
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    padding: 4px 10px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    backdrop-filter: blur(4px);
+}
+
+.cardLevel {
+    position: relative;
+    z-index: 1;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.02em;
+}
+
+.cardMetaGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-sm);
+    position: relative;
+    z-index: 1;
+}
+
+.metaLabel {
+    display: block;
+    font-size: 11px;
+    opacity: 0.82;
+    margin-bottom: 2px;
+}
+
+.metaValue {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    word-break: break-all;
+}
+
+.cardFooter {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    opacity: 0.98;
+}
+
+.cardBack {
+    background: linear-gradient(140deg, #0f172a, #1e293b);
+    color: #fff;
+    transform: rotateY(180deg);
+    padding: var(--spacing-lg);
+}
+
+.magneticStripe {
+    height: 34px;
+    margin: 0 calc(var(--spacing-lg) * -1) var(--spacing-md);
+    background: linear-gradient(90deg, #000 0%, #171717 100%);
+}
+
+.backTitle {
+    margin: 0;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+}
+
+.backDescription {
+    margin: 8px 0 var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.qrPlaceholder {
+    border: 1px dashed rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-md);
+    min-height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.qrImage {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 6px;
+}
+
+.summaryBox {
+    margin-top: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border-light);
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.summaryTitle {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.summaryValue {
+    margin-top: 6px;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+
+.summaryTier {
+    margin-top: 4px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}

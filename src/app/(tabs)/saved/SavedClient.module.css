@@ -1,0 +1,113 @@
+.container {
+    padding: var(--spacing-md);
+    padding-bottom: calc(var(--tab-bar-height) + var(--spacing-xl));
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+}
+
+.badge {
+    font-size: var(--font-size-xs);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-muted);
+}
+
+.empty {
+    text-align: center;
+    padding-top: 30vh;
+    color: var(--color-text-muted);
+}
+
+.emptyHint {
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-sm);
+    opacity: 0.7;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.card {
+    display: block;
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: background var(--transition-fast);
+}
+
+.card:active {
+    background: var(--color-bg-secondary);
+}
+
+.cardMain {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: var(--spacing-xs);
+}
+
+.placeName {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+}
+
+.placeNameJa {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.cardMeta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.address {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.level {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.level[data-level='HIGH'] {
+    color: var(--color-confidence-high);
+    background: rgba(22, 163, 74, 0.1);
+}
+
+.level[data-level='MID'] {
+    color: var(--color-confidence-mid);
+    background: rgba(234, 179, 8, 0.1);
+}
+
+.level[data-level='LOW'] {
+    color: var(--color-confidence-low);
+    background: rgba(239, 68, 68, 0.1);
+}
