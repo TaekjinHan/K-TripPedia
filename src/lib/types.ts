@@ -170,7 +170,7 @@ export interface PlaceDetail extends PlaceWithProfile {
 }
 
 /** 포인트 산식 (v0.2 확장용) */
-export const POINT_VALUES = {
+export const LEGACY_POINT_VALUES = {
   report: 10,
   report_conditional: 12,
   confirm: 4,

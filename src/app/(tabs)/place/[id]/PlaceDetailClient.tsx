@@ -14,7 +14,24 @@ import RulePanel from '@/components/RulePanel';
 import TipCard from '@/components/TipCard';
 import SaveButton from '@/components/SaveButton';
 import { CATEGORY_LABELS } from '@/lib/constants';
-import type { SoloOkLevel, SoloAllowed } from '@/lib/types';
+import {
+    formatObservedDate,
+    getMealPeriodLabel,
+    getSeatTypeLabel,
+    getSoloAllowedLabel,
+    getSoloOutcomeLabel,
+    getStaffReactionLabel,
+} from '@/lib/labels';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguageContext } from '@/contexts/LanguageContext';
+import type {
+    SoloOkLevel,
+    SoloAllowed,
+    SoloOutcome,
+    SeatType,
+    StaffReaction,
+    MealPeriod,
+} from '@/lib/types';
 import styles from './PlaceDetail.module.css';
 
 interface PlaceData {
@@ -55,24 +72,17 @@ interface TipData {
 
 interface ObservationData {
     id: string;
-    solo_outcome: string;
-    seat_type: string | null;
-    staff_reaction: string | null;
-    meal_period: string | null;
+    solo_outcome: SoloOutcome;
+    seat_type: SeatType | null;
+    staff_reaction: StaffReaction | null;
+    meal_period: MealPeriod | null;
     memo_short: string | null;
     observed_at: string | null;
 }
 
-function getAllowedLabel(allowed: SoloAllowed): string {
-    switch (allowed) {
-        case 'YES': return 'ひとりOK';
-        case 'NO': return 'NG (1人不可)';
-        case 'CONDITIONAL': return '条件付きOK';
-        default: return allowed;
-    }
-}
-
 export default function PlaceDetailClient() {
+    const t = useTranslation();
+    const { lang } = useLanguageContext();
     const params = useParams();
     const router = useRouter();
     const placeId = params.id as string;
@@ -118,22 +128,22 @@ export default function PlaceDetailClient() {
 
     if (loading) {
         return (
-            <div className={styles.loading}>読み込み中...</div>
+            <div className={styles.loading}>{t('common.loading')}</div>
         );
     }
 
     if (!place) {
         return (
             <div className={styles.notFound}>
-                <p>お店が見つかりませんでした</p>
+                <p>{t('placeDetail.notFound')}</p>
                 <button className={styles.backBtn} onClick={() => router.back()}>
-                    戻る
+                    {t('common.back')}
                 </button>
             </div>
         );
     }
 
-    const categoryLabel = CATEGORY_LABELS[place.category]?.ja ?? place.category;
+    const categoryLabel = CATEGORY_LABELS[place.category]?.[lang] ?? place.category;
 
     return (
         <div className={styles.container}>
@@ -144,7 +154,7 @@ export default function PlaceDetailClient() {
                         stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                         <polyline points="15 18 9 12 15 6" />
                     </svg>
-                    <span>戻る</span>
+                    <span>{t('common.back')}</span>
                 </button>
             </div>
 
@@ -164,42 +174,52 @@ export default function PlaceDetailClient() {
             {/* 기본 정보 */}
             <div className={styles.infoSection}>
                 <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>カテゴリー</span>
+                    <span className={styles.infoLabel}>{t('placeDetail.category')}</span>
                     <span>{categoryLabel}</span>
                 </div>
                 {profile && (
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>ひとりOK</span>
+                        <span className={styles.infoLabel}>{t('placeDetail.soloOk')}</span>
                         <span className={styles.allowedValue} data-allowed={profile.solo_allowed}>
-                            {getAllowedLabel(profile.solo_allowed)}
+                            {getSoloAllowedLabel(profile.solo_allowed, lang)}
                         </span>
                     </div>
                 )}
                 {profile?.min_portions_required && profile.min_portions_required >= 2 && (
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>最低注文</span>
-                        <span>{profile.min_portions_required}人前~</span>
+                        <span className={styles.infoLabel}>{t('placeDetail.minOrder')}</span>
+                        <span>
+                            {t('placeDetail.minOrderValue', {
+                                count: profile.min_portions_required,
+                            })}
+                        </span>
                     </div>
                 )}
                 {profile?.counter_seat && (
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>カウンター席</span>
-                        <span>{profile.counter_seat === 'Y' ? 'あり' : profile.counter_seat === 'N' ? 'なし' : '不明'}</span>
+                        <span className={styles.infoLabel}>{t('placeDetail.counterSeat')}</span>
+                        <span>
+                            {profile.counter_seat === 'Y'
+                                ? t('placeDetail.counterSeatYes')
+                                : profile.counter_seat === 'N'
+                                    ? t('placeDetail.counterSeatNo')
+                                    : t('placeDetail.counterSeatUnknown')}
+                        </span>
                     </div>
                 )}
                 <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>住所</span>
+                    <span className={styles.infoLabel}>{t('placeDetail.address')}</span>
                     <span className={styles.address}>{place.address}</span>
                 </div>
                 {place.phone && (
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>電話</span>
+                        <span className={styles.infoLabel}>{t('placeDetail.phone')}</span>
                         <a href={`tel:${place.phone}`} className={styles.phone}>{place.phone}</a>
                     </div>
                 )}
                 {place.opening_hours && (
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>営業時間</span>
+                        <span className={styles.infoLabel}>{t('placeDetail.openingHours')}</span>
                         <span>{place.opening_hours}</span>
                     </div>
                 )}
@@ -218,7 +238,7 @@ export default function PlaceDetailClient() {
             {/* 공략 팁 */}
             {tips.length > 0 && (
                 <div className={styles.section}>
-                    <h2 className={styles.sectionTitle}>攻略テクニック</h2>
+                    <h2 className={styles.sectionTitle}>{t('placeDetail.tipsTitle')}</h2>
                     <div className={styles.tipList}>
                         {tips.map((tip) => (
                             <TipCard
@@ -236,22 +256,20 @@ export default function PlaceDetailClient() {
             {/* 최근 리포트 */}
             {observations.length > 0 && (
                 <div className={styles.section}>
-                    <h2 className={styles.sectionTitle}>最近のレポート</h2>
+                    <h2 className={styles.sectionTitle}>{t('placeDetail.recentReports')}</h2>
                     <div className={styles.reportList}>
                         {observations.map((obs) => (
                             <div key={obs.id} className={styles.reportCard}>
                                 <div className={styles.reportHeader}>
                                     <span className={styles.outcomeBadge} data-outcome={obs.solo_outcome}>
-                                        {obs.solo_outcome === 'ACCEPTED' ? 'ひとりOK' :
-                                            obs.solo_outcome === 'REJECTED' ? 'NG' :
-                                                obs.solo_outcome === 'ACCEPTED_IF_2PORTIONS' ? '2人前~' : '不明'}
+                                        {getSoloOutcomeLabel(obs.solo_outcome, lang)}
                                     </span>
-                                    <span className={styles.reportDate}>{obs.observed_at}</span>
+                                    <span className={styles.reportDate}>{formatObservedDate(obs.observed_at, lang)}</span>
                                 </div>
                                 <div className={styles.reportTags}>
-                                    {obs.seat_type && <span className={styles.reportTag}>{obs.seat_type === 'COUNTER' ? 'カウンター' : obs.seat_type}</span>}
-                                    {obs.staff_reaction && <span className={styles.reportTag}>{obs.staff_reaction === 'KIND' ? '親切' : obs.staff_reaction === 'NORMAL' ? '普通' : '不快'}</span>}
-                                    {obs.meal_period && <span className={styles.reportTag}>{obs.meal_period === 'LUNCH' ? 'ランチ' : obs.meal_period === 'DINNER' ? 'ディナー' : obs.meal_period}</span>}
+                                    {obs.seat_type && <span className={styles.reportTag}>{getSeatTypeLabel(obs.seat_type, lang)}</span>}
+                                    {obs.staff_reaction && <span className={styles.reportTag}>{getStaffReactionLabel(obs.staff_reaction, lang)}</span>}
+                                    {obs.meal_period && <span className={styles.reportTag}>{getMealPeriodLabel(obs.meal_period, lang)}</span>}
                                 </div>
                                 {obs.memo_short && <p className={styles.reportMemo}>{obs.memo_short}</p>}
                             </div>
@@ -276,7 +294,7 @@ export default function PlaceDetailClient() {
                     }}
                 />
                 <a href={`/report/${place.id}`} className={styles.reportLink}>
-                    体験をレポート
+                    {t('placeDetail.reportExperience')}
                 </a>
             </div>
         </div>

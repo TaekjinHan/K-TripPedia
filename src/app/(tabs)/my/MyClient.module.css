@@ -15,6 +15,35 @@
     margin: 0;
 }
 
+.pointHero {
+    margin: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    background:
+        linear-gradient(130deg, rgba(37, 99, 235, 0.1), rgba(59, 130, 246, 0.06));
+    border: 1px solid rgba(37, 99, 235, 0.18);
+}
+
+.pointHeroLabel {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.pointHeroValue {
+    margin: 4px 0 0;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    line-height: 1.1;
+}
+
+.pointHeroTier {
+    margin: 6px 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
 .profileCard {
     display: flex;
     align-items: center;
@@ -54,6 +83,44 @@
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-sm);
     padding: 0 var(--spacing-md) var(--spacing-md);
+}
+
+.langSection {
+    margin: 0 var(--spacing-md) var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-light);
+    background: var(--color-bg-secondary);
+}
+
+.langLabel {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.langButtons {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.langButton {
+    flex: 1;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    padding: 8px 10px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.langButtonActive {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-semibold);
+    background: rgba(37, 99, 235, 0.06);
 }
 
 .statCard {

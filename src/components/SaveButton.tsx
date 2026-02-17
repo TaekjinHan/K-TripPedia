@@ -7,20 +7,18 @@
  */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ensureAnonSession } from '@/lib/auth';
 import { isSaved, toggleSaved } from '@/lib/savedSnapshot';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { PlaceSummary } from '@/lib/savedSnapshot';
 import styles from './SaveButton.module.css';
 
 export default function SaveButton({ place }: { place: PlaceSummary }) {
-    const [saved, setSaved] = useState(false);
+    const t = useTranslation();
+    const [saved, setSaved] = useState(() => isSaved(place.id));
     const [busy, setBusy] = useState(false);
-
-    useEffect(() => {
-        setSaved(isSaved(place.id));
-    }, [place.id]);
 
     const onClick = async () => {
         setBusy(true);
@@ -60,7 +58,7 @@ export default function SaveButton({ place }: { place: PlaceSummary }) {
             onClick={onClick}
             disabled={busy}
             className={`${styles.saveButton} ${saved ? styles.saved : ''}`}
-            aria-label={saved ? '저장 해제' : '저장'}
+            aria-label={saved ? t('saveButton.ariaUnsave') : t('saveButton.ariaSave')}
         >
             <svg
                 width={18}
@@ -74,7 +72,7 @@ export default function SaveButton({ place }: { place: PlaceSummary }) {
             >
                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
             </svg>
-            <span>{saved ? '保存済み' : '保存'}</span>
+            <span>{saved ? t('saveButton.saved') : t('saveButton.save')}</span>
             {busy && <span className={styles.spinner} />}
         </button>
     );

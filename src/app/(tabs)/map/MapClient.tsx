@@ -14,6 +14,7 @@ import type { MarkerData } from '@/components/KakaoMapDynamic';
 import PlaceCard from '@/components/PlaceCard';
 import type { PlaceCardData } from '@/components/PlaceCard';
 import type { SoloOkLevel, SoloAllowed } from '@/lib/types';
+import { useTranslation } from '@/hooks/useTranslation';
 import styles from './MapClient.module.css';
 
 interface PlaceRow {
@@ -34,6 +35,7 @@ interface PlaceRow {
 }
 
 export default function MapClient() {
+    const t = useTranslation();
     const [markers, setMarkers] = useState<MarkerData[]>([]);
     const [placeMap, setPlaceMap] = useState<Map<string, PlaceCardData>>(new Map());
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -68,7 +70,7 @@ export default function MapClient() {
 
             if (fetchErr) {
                 console.error('[MapClient] Fetch error:', fetchErr);
-                setError('데이터를 불러오지 못했습니다');
+                setError(fetchErr.message);
                 setLoading(false);
                 return;
             }
@@ -123,15 +125,15 @@ export default function MapClient() {
         <div className={styles.container}>
             {/* 상단 헤더 */}
             <div className={styles.header}>
-                <span className={styles.title}>ひとりOK マップ</span>
+                <span className={styles.title}>{t('map.title')}</span>
                 <span className={styles.count}>
-                    {loading ? '...' : `${markers.length}件`}
+                    {loading ? '...' : `${markers.length}${t('map.countSuffix')}`}
                 </span>
             </div>
 
             {/* 에러 표시 */}
             {error && (
-                <div className={styles.error}>{error}</div>
+                <div className={styles.error}>{t('map.loadError')}</div>
             )}
 
             {/* 지도 */}

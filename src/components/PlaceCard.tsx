@@ -6,6 +6,9 @@
 import Link from 'next/link';
 import ConfidenceBadge from './ConfidenceBadge';
 import { CATEGORY_LABELS } from '@/lib/constants';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguageContext } from '@/contexts/LanguageContext';
+import { getSoloAllowedLabel } from '@/lib/labels';
 import type { SoloOkLevel, SoloAllowed } from '@/lib/types';
 import styles from './PlaceCard.module.css';
 
@@ -27,21 +30,14 @@ interface PlaceCardProps {
     onClose?: () => void;
 }
 
-function getAllowedLabel(allowed: SoloAllowed): string {
-    switch (allowed) {
-        case 'YES': return 'ひとりOK';
-        case 'NO': return 'NG';
-        case 'CONDITIONAL': return '条件付き';
-        default: return allowed;
-    }
-}
-
 export default function PlaceCard({ place, onClose }: PlaceCardProps) {
-    const categoryLabel = CATEGORY_LABELS[place.category]?.ja ?? place.category;
+    const t = useTranslation();
+    const { lang } = useLanguageContext();
+    const categoryLabel = CATEGORY_LABELS[place.category]?.[lang] ?? place.category;
 
     return (
         <div className={styles.card}>
-            <button className={styles.closeBtn} onClick={onClose} aria-label="閉じる">
+            <button className={styles.closeBtn} onClick={onClose} aria-label={t('common.close')}>
                 <svg width={18} height={18} viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -63,11 +59,15 @@ export default function PlaceCard({ place, onClose }: PlaceCardProps) {
                 <div className={styles.meta}>
                     <span className={styles.category}>{categoryLabel}</span>
                     <span className={styles.divider}>|</span>
-                    <span className={styles.allowed}>{getAllowedLabel(place.solo_allowed)}</span>
+                    <span className={styles.allowed}>{getSoloAllowedLabel(place.solo_allowed, lang)}</span>
                     {place.min_portions_required && place.min_portions_required >= 2 && (
                         <>
                             <span className={styles.divider}>|</span>
-                            <span className={styles.portions}>{place.min_portions_required}人前~</span>
+                            <span className={styles.portions}>
+                                {t('placeDetail.minOrderValue', {
+                                    count: place.min_portions_required,
+                                })}
+                            </span>
                         </>
                     )}
                 </div>
@@ -81,7 +81,7 @@ export default function PlaceCard({ place, onClose }: PlaceCardProps) {
                 <div className={styles.address}>{place.address}</div>
 
                 <div className={styles.cta}>
-                    詳細を見る
+                    {t('placeDetail.viewDetail')}
                     <svg width={14} height={14} viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                         <polyline points="9 18 15 12 9 6" />

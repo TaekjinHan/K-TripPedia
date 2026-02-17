@@ -157,6 +157,12 @@
     font-weight: var(--font-weight-semibold);
 }
 
+.pointEarned {
+    margin-top: 6px;
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+}
+
 .errorMsg {
     text-align: center;
     padding: var(--spacing-sm);

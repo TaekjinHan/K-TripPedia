@@ -16,11 +16,16 @@ import {
     replaceSavedWithPlaces,
     type PlaceSummary,
 } from '@/lib/savedSnapshot';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguageContext } from '@/contexts/LanguageContext';
+import { CONFIDENCE_LABELS } from '@/lib/constants';
 import styles from './SavedClient.module.css';
 
 type SyncStatus = 'offline' | 'syncing' | 'ready';
 
 export default function SavedClient() {
+    const t = useTranslation();
+    const { lang } = useLanguageContext();
     const [places, setPlaces] = useState<PlaceSummary[]>([]);
     const [status, setStatus] = useState<SyncStatus>('ready');
 
@@ -104,20 +109,20 @@ export default function SavedClient() {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <h1 className={styles.title}>保存リスト</h1>
+                <h1 className={styles.title}>{t('saved.title')}</h1>
                 {status === 'offline' && (
-                    <span className={styles.badge}>オフライン</span>
+                    <span className={styles.badge}>{t('saved.offline')}</span>
                 )}
                 {status === 'syncing' && (
-                    <span className={styles.badge}>同期中...</span>
+                    <span className={styles.badge}>{t('saved.syncing')}</span>
                 )}
             </header>
 
             {places.length === 0 ? (
                 <div className={styles.empty}>
-                    <p>保存したお店はまだありません</p>
+                    <p>{t('saved.emptyTitle')}</p>
                     <p className={styles.emptyHint}>
-                        お店の詳細ページで「保存」ボタンを押すと、ここに表示されます
+                        {t('saved.emptyHint')}
                     </p>
                 </div>
             ) : (
@@ -138,7 +143,7 @@ export default function SavedClient() {
                                             className={styles.level}
                                             data-level={p.solo_ok_level}
                                         >
-                                            {p.solo_ok_level}
+                                            {CONFIDENCE_LABELS[p.solo_ok_level]?.[lang] ?? p.solo_ok_level}
                                         </span>
                                     )}
                                 </div>

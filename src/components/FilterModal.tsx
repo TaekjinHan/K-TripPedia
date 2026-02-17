@@ -6,6 +6,8 @@
 
 import { useState } from 'react';
 import { CATEGORY_LABELS, CONFIDENCE_LABELS } from '@/lib/constants';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguageContext } from '@/contexts/LanguageContext';
 import styles from './FilterModal.module.css';
 
 export interface FilterState {
@@ -21,7 +23,6 @@ export const INITIAL_FILTER: FilterState = {
 };
 
 interface FilterModalProps {
-    isOpen: boolean;
     current: FilterState;
     onApply: (filter: FilterState) => void;
     onClose: () => void;
@@ -31,14 +32,13 @@ const CATEGORY_KEYS = Object.keys(CATEGORY_LABELS);
 const LEVEL_KEYS = ['HIGH', 'MID', 'LOW'];
 
 export default function FilterModal({
-    isOpen,
     current,
     onApply,
     onClose,
 }: FilterModalProps) {
+    const t = useTranslation();
+    const { lang } = useLanguageContext();
     const [draft, setDraft] = useState<FilterState>(current);
-
-    if (!isOpen) return null;
 
     const toggleCategory = (key: string) => {
         setDraft((prev) => ({
@@ -84,15 +84,15 @@ export default function FilterModal({
                             <line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                     </button>
-                    <span className={styles.headerTitle}>フィルター</span>
+                    <span className={styles.headerTitle}>{t('filter.title')}</span>
                     <button className={styles.resetBtn} onClick={handleReset}>
-                        リセット
+                        {t('filter.reset')}
                     </button>
                 </div>
 
                 {/* 카테고리 */}
                 <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>カテゴリー</h3>
+                    <h3 className={styles.sectionTitle}>{t('filter.category')}</h3>
                     <div className={styles.chipGroup}>
                         {CATEGORY_KEYS.map((key) => (
                             <button
@@ -101,7 +101,7 @@ export default function FilterModal({
                                     }`}
                                 onClick={() => toggleCategory(key)}
                             >
-                                {CATEGORY_LABELS[key].ja}
+                                {CATEGORY_LABELS[key]?.[lang] ?? key}
                             </button>
                         ))}
                     </div>
@@ -109,7 +109,7 @@ export default function FilterModal({
 
                 {/* Confidence 레벨 */}
                 <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>ひとりOK レベル</h3>
+                    <h3 className={styles.sectionTitle}>{t('filter.soloLevel')}</h3>
                     <div className={styles.chipGroup}>
                         {LEVEL_KEYS.map((key) => (
                             <button
@@ -119,7 +119,7 @@ export default function FilterModal({
                                 onClick={() => toggleLevel(key)}
                                 data-level={key}
                             >
-                                {CONFIDENCE_LABELS[key].ja}
+                                {CONFIDENCE_LABELS[key]?.[lang] ?? key}
                             </button>
                         ))}
                     </div>
@@ -128,7 +128,7 @@ export default function FilterModal({
                 {/* 카운터석 필터 */}
                 <div className={styles.section}>
                     <label className={styles.toggle}>
-                        <span>カウンター席あり</span>
+                        <span>{t('filter.counterOnly')}</span>
                         <input
                             type="checkbox"
                             checked={draft.counterSeatOnly}
@@ -147,8 +147,8 @@ export default function FilterModal({
                 <div className={styles.footer}>
                     <button className={styles.applyBtn} onClick={handleApply}>
                         {activeCount > 0
-                            ? `${activeCount}件のフィルターを適用`
-                            : 'すべて表示'}
+                            ? t('filter.applyWithCount', { count: activeCount })
+                            : t('filter.showAll')}
                     </button>
                 </div>
             </div>

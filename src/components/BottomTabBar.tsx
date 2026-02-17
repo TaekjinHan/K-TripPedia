@@ -3,20 +3,20 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import styles from './BottomTabBar.module.css';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface TabItem {
     key: string;
     href: string;
-    labelJa: string;
-    labelKo: string;
+    labelKey: string;
 }
 
 const TABS: TabItem[] = [
-    { key: 'map', href: '/map', labelJa: 'マップ', labelKo: '지도' },
-    { key: 'list', href: '/list', labelJa: 'リスト', labelKo: '리스트' },
-    { key: 'pass', href: '/pass', labelJa: 'パス', labelKo: '패스' },
-    { key: 'saved', href: '/saved', labelJa: '保存', labelKo: '저장' },
-    { key: 'my', href: '/my', labelJa: 'マイ', labelKo: '마이' },
+    { key: 'map', href: '/map', labelKey: 'tabs.map' },
+    { key: 'list', href: '/list', labelKey: 'tabs.list' },
+    { key: 'pass', href: '/pass', labelKey: 'tabs.pass' },
+    { key: 'saved', href: '/saved', labelKey: 'tabs.saved' },
+    { key: 'my', href: '/my', labelKey: 'tabs.my' },
 ];
 
 /** SVG 아이콘 -- 가벼운 인라인 아이콘 */
@@ -72,11 +72,13 @@ function TabIcon({ tabKey, active }: { tabKey: string; active: boolean }) {
 
 export default function BottomTabBar() {
     const pathname = usePathname();
+    const t = useTranslation();
 
     return (
         <nav className={styles.tabBar} aria-label="Main Navigation">
             {TABS.map((tab) => {
                 const isActive = pathname === tab.href || pathname.startsWith(tab.href + '/');
+                const label = t(tab.labelKey);
                 return (
                     <Link
                         key={tab.key}
@@ -85,7 +87,7 @@ export default function BottomTabBar() {
                         aria-current={isActive ? 'page' : undefined}
                     >
                         <TabIcon tabKey={tab.key} active={isActive} />
-                        <span className={styles.tabLabel}>{tab.labelJa}</span>
+                        <span className={styles.tabLabel}>{label}</span>
                     </Link>
                 );
             })}

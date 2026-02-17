@@ -1,6 +1,6 @@
 -- =============================================================================
 -- HitoriOk MVP Schema (Evidence 기반) + RLS + places 유니크키(name_ko,address)
--- 사용자 피드백 반영 v3
+-- 사용자 피드백 반영 v4 (Policy Name Conflict Fix & v0.2 Extension)
 -- =============================================================================
 
 create extension if not exists pgcrypto;
@@ -141,7 +141,7 @@ create table if not exists public.bookmarks (
 
 create index if not exists bookmarks_user_idx on public.bookmarks(user_id);
 
--- ========== 8. point_events (v0.2 확장용 -- 빈 테이블) ==========
+-- ========== 8. point_events (v0.2 확장용) ==========
 create table if not exists public.point_events (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -154,7 +154,7 @@ create table if not exists public.point_events (
 
 create index if not exists point_events_user_idx on public.point_events(user_id);
 
--- ========== 9. user_stats_daily (v0.2 확장용 -- 빈 테이블) ==========
+-- ========== 9. user_stats_daily (v0.2 확장용) ==========
 create table if not exists public.user_stats_daily (
   user_id uuid not null references auth.users(id) on delete cascade,
   stat_date date not null default current_date,
@@ -196,15 +196,19 @@ drop policy if exists "public read tips" on public.tips;
 create policy "public read tips" on public.tips
 for select using (true);
 
--- observations: 읽기 public, 쓰기 authenticated(auth.uid = user_id)
+-- observations: 읽기 public
 drop policy if exists "public read observations" on public.observations;
 create policy "public read observations" on public.observations
 for select using (true);
 
+-- 리포트 제출 허용 (익명 사용자 포함)
+-- 기존에 존재할 수 있는 이름들 모두 삭제하여 충돌 방지
 drop policy if exists "auth insert observations" on public.observations;
-create policy "auth insert observations" on public.observations
-for insert to authenticated
-with check (auth.uid() = user_id);
+drop policy if exists "public insert observations" on public.observations;
+
+create policy "public insert observations" on public.observations
+for insert to public
+with check (true);
 
 -- bookmarks: authenticated 본인 것만
 drop policy if exists "read own bookmarks" on public.bookmarks;
@@ -230,3 +234,20 @@ for select to authenticated using (auth.uid() = user_id);
 drop policy if exists "read own user_stats_daily" on public.user_stats_daily;
 create policy "read own user_stats_daily" on public.user_stats_daily
 for select to authenticated using (auth.uid() = user_id);
+
+-- ========== v0.2 Extensions (Unique Index & RPC) ==========
+
+-- 1. 중복 리포트 방지 인덱스
+create unique index if not exists observations_user_place_observed_unique
+on public.observations(user_id, place_id, observed_at)
+where source_type = 'USER_VISIT';
+
+-- 2. 포인트 집계 함수
+create or replace function public.get_user_total_points(target_user_id uuid)
+returns int language sql stable security invoker as $$
+  select coalesce(sum(pe.points), 0)::int
+  from public.point_events pe where pe.user_id = target_user_id;
+$$;
+
+grant execute on function public.get_user_total_points(uuid)
+to anon, authenticated, service_role;

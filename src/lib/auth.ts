@@ -7,6 +7,44 @@
 
 import { supabase } from './supabase';
 
+export const HITORI_USER_ID_KEY = 'hitori_user_id';
+const HITORI_MEMBER_SINCE_KEY = 'hitori_member_since';
+
+function persistUserIdentity(userId: string): void {
+    if (typeof window === 'undefined') return;
+    try {
+        window.localStorage.setItem(HITORI_USER_ID_KEY, userId);
+
+        const existingSince = window.localStorage.getItem(HITORI_MEMBER_SINCE_KEY);
+        if (!existingSince) {
+            window.localStorage.setItem(
+                HITORI_MEMBER_SINCE_KEY,
+                new Date().toISOString().slice(0, 10),
+            );
+        }
+    } catch {
+        // ignore
+    }
+}
+
+export function getStoredHitoriUserId(): string | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        return window.localStorage.getItem(HITORI_USER_ID_KEY);
+    } catch {
+        return null;
+    }
+}
+
+export function getStoredMemberSince(): string | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        return window.localStorage.getItem(HITORI_MEMBER_SINCE_KEY);
+    } catch {
+        return null;
+    }
+}
+
 /**
  * 세션이 없으면 익명 로그인 시도.
  * 이미 세션이 있으면 아무것도 하지 않음.
@@ -16,7 +54,9 @@ export async function ensureAnonSession(): Promise<string | null> {
     try {
         const { data: sessionData } = await supabase.auth.getSession();
         if (sessionData.session) {
-            return sessionData.session.user.id;
+            const userId = sessionData.session.user.id;
+            persistUserIdentity(userId);
+            return userId;
         }
 
         const { data, error } = await supabase.auth.signInAnonymously();
@@ -25,7 +65,12 @@ export async function ensureAnonSession(): Promise<string | null> {
             return null;
         }
 
-        return data.session?.user.id ?? null;
+        const userId = data.session?.user.id ?? null;
+        if (userId) {
+            persistUserIdentity(userId);
+        }
+
+        return userId;
     } catch (e) {
         console.warn('[auth] ensureAnonSession error:', e);
         return null;
@@ -36,7 +81,11 @@ export async function ensureAnonSession(): Promise<string | null> {
 export async function getCurrentUserId(): Promise<string | null> {
     try {
         const { data } = await supabase.auth.getUser();
-        return data.user?.id ?? null;
+        const userId = data.user?.id ?? null;
+        if (userId) {
+            persistUserIdentity(userId);
+        }
+        return userId;
     } catch {
         return null;
     }

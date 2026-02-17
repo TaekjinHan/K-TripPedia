@@ -1,8 +1,12 @@
 /**
  * RulePanel -- 규칙 표시 패널
  */
+'use client';
+
 import styles from './RulePanel.module.css';
 import { RULE_LABELS } from '@/lib/constants';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguageContext } from '@/contexts/LanguageContext';
 
 interface RuleItem {
     id: string;
@@ -24,14 +28,17 @@ function formatRuleValue(rule: RuleItem): string {
 }
 
 export default function RulePanel({ rules }: RulePanelProps) {
+    const t = useTranslation();
+    const { lang } = useLanguageContext();
+
     if (rules.length === 0) return null;
 
     return (
         <div className={styles.panel}>
-            <h3 className={styles.title}>ルール / 注意点</h3>
+            <h3 className={styles.title}>{t('placeDetail.rulesTitle')}</h3>
             <ul className={styles.list}>
                 {rules.map((rule) => {
-                    const label = RULE_LABELS[rule.rule_type]?.ja ?? rule.rule_type;
+                    const label = RULE_LABELS[rule.rule_type]?.[lang] ?? rule.rule_type;
                     const value = formatRuleValue(rule);
 
                     return (

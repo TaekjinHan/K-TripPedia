@@ -10,15 +10,21 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ensureAnonSession } from '@/lib/auth';
 import { getSavedPlaces } from '@/lib/savedSnapshot';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguageContext } from '@/contexts/LanguageContext';
+import { formatPointDisplay, getPointTier, normalizeTotalPoints } from '@/lib/points';
 import styles from './MyClient.module.css';
 
 interface MyStats {
     reportCount: number;
     savedCount: number;
+    totalPoints: number;
 }
 
 export default function MyClient() {
-    const [stats, setStats] = useState<MyStats>({ reportCount: 0, savedCount: 0 });
+    const t = useTranslation();
+    const { lang, setLang } = useLanguageContext();
+    const [stats, setStats] = useState<MyStats>({ reportCount: 0, savedCount: 0, totalPoints: 0 });
     const [userId, setUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -40,21 +46,42 @@ export default function MyClient() {
                     .select('id', { count: 'exact', head: true })
                     .eq('user_id', uid);
                 reportCount = count ?? 0;
+
+                const { data: totalPointsRaw } = await supabase.rpc(
+                    'get_user_total_points',
+                    { target_user_id: uid },
+                );
+
+                const totalPoints = normalizeTotalPoints(Number(totalPointsRaw ?? 0));
+
+                setStats({ reportCount, savedCount, totalPoints });
+                setLoading(false);
+                return;
             }
 
-            setStats({ reportCount, savedCount });
+            setStats({ reportCount, savedCount, totalPoints: 0 });
             setLoading(false);
         };
 
         fetchStats();
     }, []);
 
+    const pointTier = getPointTier(stats.totalPoints);
+
     return (
         <div className={styles.container}>
             {/* 헤더 */}
             <div className={styles.header}>
-                <h1 className={styles.title}>マイページ</h1>
+                <h1 className={styles.title}>{t('my.title')}</h1>
             </div>
+
+            <section className={styles.pointHero}>
+                <p className={styles.pointHeroLabel}>{t('my.pointsTitle')}</p>
+                <p className={styles.pointHeroValue}>
+                    {loading ? '-' : formatPointDisplay(stats.totalPoints)}
+                </p>
+                <p className={styles.pointHeroTier}>Tier: {pointTier}</p>
+            </section>
 
             {/* 프로필 카드 */}
             <div className={styles.profileCard}>
@@ -66,9 +93,9 @@ export default function MyClient() {
                     </svg>
                 </div>
                 <div className={styles.profileInfo}>
-                    <span className={styles.profileName}>ゲストユーザー</span>
+                    <span className={styles.profileName}>{t('my.guestUser')}</span>
                     <span className={styles.profileId}>
-                        {userId ? `ID: ${userId.slice(0, 8)}...` : '匿名'}
+                        {userId ? `ID: ${userId.slice(0, 8)}...` : t('my.anonymous')}
                     </span>
                 </div>
             </div>
@@ -79,27 +106,47 @@ export default function MyClient() {
                     <span className={styles.statValue}>
                         {loading ? '-' : stats.reportCount}
                     </span>
-                    <span className={styles.statLabel}>レポート</span>
+                    <span className={styles.statLabel}>{t('my.reports')}</span>
                 </div>
                 <div className={styles.statCard}>
                     <span className={styles.statValue}>
                         {loading ? '-' : stats.savedCount}
                     </span>
-                    <span className={styles.statLabel}>保存済み</span>
+                    <span className={styles.statLabel}>{t('my.saved')}</span>
+                </div>
+            </div>
+
+            <div className={styles.langSection}>
+                <span className={styles.langLabel}>{t('my.language')}</span>
+                <div className={styles.langButtons}>
+                    <button
+                        type="button"
+                        className={`${styles.langButton} ${lang === 'ko' ? styles.langButtonActive : ''}`}
+                        onClick={() => setLang('ko')}
+                    >
+                        {t('my.languageKo')}
+                    </button>
+                    <button
+                        type="button"
+                        className={`${styles.langButton} ${lang === 'ja' ? styles.langButtonActive : ''}`}
+                        onClick={() => setLang('ja')}
+                    >
+                        {t('my.languageJa')}
+                    </button>
                 </div>
             </div>
 
             {/* 메뉴 */}
             <div className={styles.menuSection}>
                 <Link href="/saved" className={styles.menuItem}>
-                    <span>保存済みリスト</span>
+                    <span>{t('my.savedList')}</span>
                     <svg width={16} height={16} viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                         <polyline points="9 6 15 12 9 18" />
                     </svg>
                 </Link>
                 <Link href="/pass" className={styles.menuItem}>
-                    <span>パスカード</span>
+                    <span>{t('my.passCard')}</span>
                     <svg width={16} height={16} viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                         <polyline points="9 6 15 12 9 18" />

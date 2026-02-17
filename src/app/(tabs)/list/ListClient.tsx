@@ -15,6 +15,9 @@ import FilterModal, {
     type FilterState,
 } from '@/components/FilterModal';
 import { CATEGORY_LABELS } from '@/lib/constants';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguageContext } from '@/contexts/LanguageContext';
+import { getSoloAllowedLabel } from '@/lib/labels';
 import type { SoloOkLevel, SoloAllowed } from '@/lib/types';
 import styles from './ListClient.module.css';
 
@@ -30,16 +33,9 @@ interface PlaceItem {
     best_time_note: string | null;
 }
 
-function getAllowedLabel(allowed: SoloAllowed): string {
-    switch (allowed) {
-        case 'YES': return 'ひとりOK';
-        case 'NO': return 'NG';
-        case 'CONDITIONAL': return '条件付き';
-        default: return allowed;
-    }
-}
-
 export default function ListClient() {
+    const t = useTranslation();
+    const { lang } = useLanguageContext();
     const [items, setItems] = useState<PlaceItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<FilterState>(INITIAL_FILTER);
@@ -135,7 +131,7 @@ export default function ListClient() {
         <div className={styles.container}>
             {/* 헤더 */}
             <div className={styles.header}>
-                <span className={styles.title}>お店リスト</span>
+                <span className={styles.title}>{t('list.title')}</span>
                 <button
                     className={`${styles.filterBtn} ${hasActiveFilter ? styles.filterActive : ''}`}
                     onClick={() => setShowFilter(true)}
@@ -146,7 +142,7 @@ export default function ListClient() {
                         <line x1="7" y1="12" x2="17" y2="12" />
                         <line x1="10" y1="18" x2="14" y2="18" />
                     </svg>
-                    <span>フィルター</span>
+                    <span>{t('list.filter')}</span>
                     {hasActiveFilter && (
                         <span className={styles.filterCount}>
                             {filter.categories.length +
@@ -159,15 +155,17 @@ export default function ListClient() {
 
             {/* 결과 수 */}
             <div className={styles.resultBar}>
-                {loading ? '読み込み中...' : `${filtered.length}件`}
+                {loading
+                    ? t('list.loading')
+                    : `${filtered.length}${t('list.countSuffix')}`}
             </div>
 
             {/* 리스트 */}
             {!loading && filtered.length === 0 ? (
                 <div className={styles.empty}>
                     {hasActiveFilter
-                        ? 'フィルター条件に合うお店がありません'
-                        : 'まだお店が登録されていません'}
+                        ? t('list.emptyFiltered')
+                        : t('list.emptyAll')}
                 </div>
             ) : (
                 <ul className={styles.list}>
@@ -185,16 +183,16 @@ export default function ListClient() {
                                 </div>
                                 <div className={styles.cardMeta}>
                                     <span className={styles.category}>
-                                        {CATEGORY_LABELS[p.category]?.ja ?? p.category}
+                                        {CATEGORY_LABELS[p.category]?.[lang] ?? p.category}
                                     </span>
                                     <span className={styles.divider}>|</span>
                                     <span className={styles.allowed}>
-                                        {getAllowedLabel(p.solo_allowed)}
+                                        {getSoloAllowedLabel(p.solo_allowed, lang)}
                                     </span>
                                     {p.counter_seat === 'Y' && (
                                         <>
                                             <span className={styles.divider}>|</span>
-                                            <span className={styles.counter}>カウンター</span>
+                                            <span className={styles.counter}>{t('list.counter')}</span>
                                         </>
                                     )}
                                 </div>
