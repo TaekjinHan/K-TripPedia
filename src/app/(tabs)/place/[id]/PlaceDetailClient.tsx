@@ -53,6 +53,16 @@ interface TipData {
     priority: number;
 }
 
+interface ObservationData {
+    id: string;
+    solo_outcome: string;
+    seat_type: string | null;
+    staff_reaction: string | null;
+    meal_period: string | null;
+    memo_short: string | null;
+    observed_at: string | null;
+}
+
 function getAllowedLabel(allowed: SoloAllowed): string {
     switch (allowed) {
         case 'YES': return 'ひとりOK';
@@ -71,6 +81,7 @@ export default function PlaceDetailClient() {
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [rules, setRules] = useState<RuleData[]>([]);
     const [tips, setTips] = useState<TipData[]>([]);
+    const [observations, setObservations] = useState<ObservationData[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -80,11 +91,12 @@ export default function PlaceDetailClient() {
             setLoading(true);
 
             // 병렬 조회
-            const [placeRes, profileRes, rulesRes, tipsRes] = await Promise.all([
+            const [placeRes, profileRes, rulesRes, tipsRes, observationsRes] = await Promise.all([
                 supabase.from('places').select('*').eq('id', placeId).single(),
                 supabase.from('solo_profile').select('*').eq('place_id', placeId).single(),
                 supabase.from('solo_rules').select('*').eq('place_id', placeId).order('rule_type'),
                 supabase.from('tips').select('*').eq('place_id', placeId).order('priority', { ascending: false }),
+                supabase.from('observations').select('*').eq('place_id', placeId).order('recorded_at', { ascending: false }).limit(5),
             ]);
 
             if (placeRes.error || !placeRes.data) {
@@ -97,6 +109,7 @@ export default function PlaceDetailClient() {
             setProfile(profileRes.data as ProfileData | null);
             setRules((rulesRes.data ?? []) as RuleData[]);
             setTips((tipsRes.data ?? []) as TipData[]);
+            setObservations((observationsRes.data ?? []) as ObservationData[]);
             setLoading(false);
         };
 
@@ -215,6 +228,33 @@ export default function PlaceDetailClient() {
                                 textJa={tip.tip_text_ja}
                                 priority={tip.priority}
                             />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* 최근 리포트 */}
+            {observations.length > 0 && (
+                <div className={styles.section}>
+                    <h2 className={styles.sectionTitle}>最近のレポート</h2>
+                    <div className={styles.reportList}>
+                        {observations.map((obs) => (
+                            <div key={obs.id} className={styles.reportCard}>
+                                <div className={styles.reportHeader}>
+                                    <span className={styles.outcomeBadge} data-outcome={obs.solo_outcome}>
+                                        {obs.solo_outcome === 'ACCEPTED' ? 'ひとりOK' :
+                                            obs.solo_outcome === 'REJECTED' ? 'NG' :
+                                                obs.solo_outcome === 'ACCEPTED_IF_2PORTIONS' ? '2人前~' : '不明'}
+                                    </span>
+                                    <span className={styles.reportDate}>{obs.observed_at}</span>
+                                </div>
+                                <div className={styles.reportTags}>
+                                    {obs.seat_type && <span className={styles.reportTag}>{obs.seat_type === 'COUNTER' ? 'カウンター' : obs.seat_type}</span>}
+                                    {obs.staff_reaction && <span className={styles.reportTag}>{obs.staff_reaction === 'KIND' ? '親切' : obs.staff_reaction === 'NORMAL' ? '普通' : '不快'}</span>}
+                                    {obs.meal_period && <span className={styles.reportTag}>{obs.meal_period === 'LUNCH' ? 'ランチ' : obs.meal_period === 'DINNER' ? 'ディナー' : obs.meal_period}</span>}
+                                </div>
+                                {obs.memo_short && <p className={styles.reportMemo}>{obs.memo_short}</p>}
+                            </div>
                         ))}
                     </div>
                 </div>
