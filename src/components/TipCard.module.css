@@ -1,0 +1,34 @@
+.card {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-left: 3px solid var(--color-primary-light);
+    background: rgba(37, 99, 235, 0.04);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.card[data-priority='high'] {
+    border-left-color: var(--color-confidence-high);
+    background: rgba(22, 163, 74, 0.04);
+}
+
+.tag {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin-bottom: 4px;
+}
+
+.card[data-priority='high'] .tag {
+    color: var(--color-confidence-high);
+}
+
+.text {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    margin: 0;
+}
+
+.textJa {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    margin: 4px 0 0;
+}

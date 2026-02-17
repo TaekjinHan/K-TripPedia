@@ -1,0 +1,61 @@
+.tabBar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--max-content-width);
+    height: var(--tab-bar-height);
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 100;
+}
+
+.tabItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    height: 100%;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    transition: color var(--transition-fast);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tabItem.active {
+    color: var(--color-primary);
+}
+
+.tabLabel {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+}
+
+/* 패스(가운데) 탭 강조 */
+.tabItem:nth-child(3) {
+    position: relative;
+}
+
+.tabItem:nth-child(3)::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-xl);
+    background: var(--color-primary);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.tabItem:nth-child(3).active::before {
+    opacity: 0.1;
+}
